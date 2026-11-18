@@ -4,7 +4,7 @@ import numpy as np
 import tempfile
 import os
 
-# === CSS personnalisé ===
+# === Custom CSS ===
 st.markdown("""
 <style>
     .main {
@@ -45,7 +45,7 @@ st.set_page_config(page_title="Chimp Barber", page_icon="🧔", layout="centered
 # === Header ===
 col1, col2 = st.columns([1, 2])
 with col1:
-    # Remplace par le chemin de ton GIF header si besoin
+    # Replace with the path to your header GIF if needed
     try:
         st.image("wbwPFP.gif", width=180)
     except:
@@ -57,16 +57,16 @@ with col2:
 
 st.markdown("---")
 
-# === Contenu principal ===
+# === Main content ===
 st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
 
-st.write("Charge le GIF sur lequel tu veux coller la barbe.")
+st.write("Upload the GIF you want to add the beard to.")
 
 BEARD_PATH = "beard.gif"
 
-uploaded_file = st.file_uploader("Ton GIF", type=["gif"], label_visibility="collapsed")
+uploaded_file = st.file_uploader("Your GIF", type=["gif"], label_visibility="collapsed")
 
-# Advanced options (cachées par défaut)
+# Advanced options (hidden by default)
 if "show_advanced" not in st.session_state:
     st.session_state.show_advanced = False
 
@@ -76,18 +76,18 @@ if st.button("Advanced generation"):
 if st.session_state.show_advanced:
     col_a, col_b = st.columns(2)
     with col_a:
-        dx = st.slider("Décalage X", -150, 150, 0)
+        dx = st.slider("X Offset", -150, 150, 0)
     with col_b:
-        dy = st.slider("Décalage Y", -150, 150, 0)
+        dy = st.slider("Y Offset", -150, 150, 0)
 else:
     dx = 0
     dy = 0
 
-if st.button("Ajouter la barbe", type="primary") and uploaded_file is not None:
+if st.button("Add the beard", type="primary") and uploaded_file is not None:
     if not os.path.exists(BEARD_PATH):
-        st.error("Fichier beard.gif manquant sur le serveur")
+        st.error("beard.gif file is missing on the server")
     else:
-        with st.spinner("Génération en cours..."):
+        with st.spinner("Generating..."):
             beard = Image.open(BEARD_PATH)
             target = Image.open(uploaded_file)
 
@@ -95,7 +95,7 @@ if st.button("Ajouter la barbe", type="primary") and uploaded_file is not None:
             target_frames = [np.array(f.convert("RGB")) for f in ImageSequence.Iterator(target)]
 
             if len(beard_frames) != len(target_frames):
-                st.error(f"Le GIF doit avoir {len(beard_frames)} frames")
+                st.error(f"The GIF must have {len(beard_frames)} frames")
             else:
                 result_frames = []
                 for b_arr, t_arr in zip(beard_frames, target_frames):
@@ -124,7 +124,7 @@ if st.button("Ajouter la barbe", type="primary") and uploaded_file is not None:
                 st.image(out_path)
                 with open(out_path, "rb") as f:
                     st.download_button(
-                        "Télécharger le GIF",
+                        "Download GIF",
                         f,
                         file_name="chimp_barber.gif",
                         mime="image/gif"
