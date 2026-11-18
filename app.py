@@ -54,7 +54,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.set_page_config(page_title="Chimp Barber", page_icon="🐒", layout="centered")
+st.set_page_config(page_title="Chimp Barber", page_icon="🧔", layout="centered")
 
 # === Header ===
 col1, col2 = st.columns([1, 2])
@@ -66,7 +66,7 @@ with col1:
 
 with col2:
     st.markdown("<h1>Chimp Barber</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='subtitle'>by <a href='https://x.com/cocktail3306'>@cocktail3306</a></p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtitle'>by Cocktail3306</p>", unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -83,7 +83,7 @@ uploaded_file = st.file_uploader("Your GIF", type=["gif"], label_visibility="col
 if "show_advanced" not in st.session_state:
     st.session_state.show_advanced = False
 
-if st.button("Advanced options", type="secondary"):
+if st.button("Advanced generation", type="secondary"):
     st.session_state.show_advanced = not st.session_state.show_advanced
 
 if st.session_state.show_advanced:
@@ -124,9 +124,40 @@ if st.button("Add the beard", type="primary") and uploaded_file is not None:
 
                     result_frames.append(Image.fromarray(t_arr))
 
-                out_path = tempfile.mktemp(suffix=".gif")
+                # === Static first frame (PNG / JPG) ===
+                first_frame = result_frames[0]
+                png_path = tempfile.mktemp(suffix=".png")
+                jpg_path = tempfile.mktemp(suffix=".jpg")
+                first_frame.save(png_path, "PNG")
+                first_frame.convert("RGB").save(jpg_path, "JPEG", quality=95)
+
+                st.subheader("Static image (first frame)")
+                st.image(png_path)
+
+                col_png, col_jpg = st.columns(2)
+                with col_png:
+                    with open(png_path, "rb") as f:
+                        st.download_button(
+                            "Download PNG",
+                            f,
+                            file_name="chimpBarber.png",
+                            mime="image/png"
+                        )
+                with col_jpg:
+                    with open(jpg_path, "rb") as f:
+                        st.download_button(
+                            "Download JPG",
+                            f,
+                            file_name="chimpBarber.jpg",
+                            mime="image/jpeg"
+                        )
+
+                st.markdown("---")
+
+                # === Animated GIF ===
+                gif_path = tempfile.mktemp(suffix=".gif")
                 result_frames[0].save(
-                    out_path,
+                    gif_path,
                     save_all=True,
                     append_images=result_frames[1:],
                     duration=beard.info.get("duration", 100),
@@ -134,16 +165,26 @@ if st.button("Add the beard", type="primary") and uploaded_file is not None:
                     optimize=True
                 )
 
-                st.image(out_path)
-                with open(out_path, "rb") as f:
+                st.subheader("Animated GIF")
+                st.image(gif_path)
+                with open(gif_path, "rb") as f:
                     st.download_button(
                         "Download GIF",
                         f,
-                        file_name="chimp_barber.gif",
+                        file_name="chimpBarber.gif",
                         mime="image/gif"
                     )
 
-                # Message under the download button
-                st.markdown("<p style='text-align: center; font-size: 1.1rem; margin-top: 0.5rem;'>Have a chimptastic day! 🐵</p>", unsafe_allow_html=True)
+                # Message under the downloads
+                st.markdown("<p style='text-align: center; font-size: 1.1rem; margin-top: 1rem;'>Have a chimptastic day! 🐵</p>", unsafe_allow_html=True)
+
+                # Share on X link
+                share_text = "Just gave my chimp a fresh beard with Chimp Barber! 🧔✨\n\nMade with Chimp Barber by @Cocktail3306"
+                share_url = f"https://x.com/intent/tweet?text={quote(share_text)}"
+                st.markdown(
+                    f'<div style="text-align: center; margin-top: 0.5rem;"><a href="{share_url}" target="_blank" style="color:#1DA1F2; font-weight:bold; text-decoration:none;">Share on 𝕏</a></div>',
+                    unsafe_allow_html=True
+                )
+                st.caption("Download the GIF first, then attach it when the X composer opens.")
 
 st.markdown("</div>", unsafe_allow_html=True)
