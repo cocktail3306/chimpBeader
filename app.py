@@ -3,6 +3,7 @@ from PIL import Image, ImageSequence
 import numpy as np
 import tempfile
 import os
+from urllib.parse import quote
 
 # === Custom CSS ===
 st.markdown("""
@@ -37,7 +38,6 @@ st.markdown("""
     .stButton>button:hover {
         background-color: #21867a;
     }
-    /* Style the advanced link button to look like a link */
     div[data-testid="stButton"] button[kind="secondary"] {
         background: none;
         border: none;
@@ -54,7 +54,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.set_page_config(page_title="Chimp Barber", page_icon="🧔", layout="centered")
+st.set_page_config(page_title="Chimp Barber", page_icon="🐒", layout="centered")
 
 # === Header ===
 col1, col2 = st.columns([1, 2])
@@ -83,7 +83,6 @@ uploaded_file = st.file_uploader("Your GIF", type=["gif"], label_visibility="col
 if "show_advanced" not in st.session_state:
     st.session_state.show_advanced = False
 
-# Link-style button for Advanced generation
 if st.button("Advanced options", type="secondary"):
     st.session_state.show_advanced = not st.session_state.show_advanced
 
@@ -143,5 +142,17 @@ if st.button("Add the beard", type="primary") and uploaded_file is not None:
                         file_name="chimp_barber.gif",
                         mime="image/gif"
                     )
+
+                # Message under the download button
+                st.markdown("<p style='text-align: center; font-size: 1.1rem; margin-top: 0.5rem;'>Have a chimptastic day! 🐵</p>", unsafe_allow_html=True)
+
+                # Share on X link
+                share_text = "Just gave my chimp a fresh beard with Chimp Barber! 🐒✨\n\n"
+                share_url = f"https://x.com/intent/tweet?text={quote(share_text)}"
+                st.markdown(
+                    f'<div style="text-align: center; margin-top: 0.5rem;"><a href="{share_url}" target="_blank" style="color:#1DA1F2; font-weight:bold; text-decoration:none;">Share on 𝕏</a></div>',
+                    unsafe_allow_html=True
+                )
+                st.caption("Download the GIF first, then attach it when the X composer opens.")
 
 st.markdown("</div>", unsafe_allow_html=True)
