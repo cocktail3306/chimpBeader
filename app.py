@@ -66,7 +66,7 @@ with col1:
 
 with col2:
     st.markdown("<h1>Chimp Barber</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='subtitle'>by Cocktail3306</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtitle'>by <a href='https://x.com/cocktail3306'>@cocktail3306</a></p>", unsafe_allow_html=True)
 
 st.markdown("---")
 
