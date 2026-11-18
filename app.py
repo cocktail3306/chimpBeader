@@ -4,58 +4,130 @@ import numpy as np
 import tempfile
 import os
 
-st.set_page_config(page_title="Beard Overlay", page_icon="🧔")
-st.title("🧔 Beard Overlay")
+# === CSS personnalisé ===
+st.markdown("""
+<style>
+    .main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .block-container {
+        max-width: 800px;
+        padding-top: 2rem;
+    }
+    h1 {
+        color: #e63946;
+        font-weight: 800;
+        margin-bottom: 0;
+    }
+    .subtitle {
+        color: #555;
+        font-size: 1.1rem;
+        margin-top: -10px;
+        margin-bottom: 1.5rem;
+    }
+    .stButton>button {
+        background-color: #2a9d8f;
+        color: white;
+        border-radius: 12px;
+        font-weight: bold;
+        padding: 0.6rem 2rem;
+    }
+    .stButton>button:hover {
+        background-color: #21867a;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.set_page_config(page_title="Chimp Barber", page_icon="🧔", layout="centered")
+
+# === Header ===
+col1, col2 = st.columns([1, 2])
+with col1:
+    # Remplace par le chemin de ton GIF header si besoin
+    try:
+        st.image("wbwPFP.gif", width=180)
+    except:
+        st.image("https://via.placeholder.com/180x180/e63946/ffffff?text=Chimp", width=180)
+
+with col2:
+    st.markdown("<h1>Chimp Barber</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='subtitle'>by Cocktail3306</p>", unsafe_allow_html=True)
+
+st.markdown("---")
+
+# === Contenu principal ===
+st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+
 st.write("Charge le GIF sur lequel tu veux coller la barbe.")
 
-# Le GIF de barbe doit être dans le même dossier que app.py
 BEARD_PATH = "beard.gif"
 
-uploaded_file = st.file_uploader("Ton GIF", type=["gif"])
+uploaded_file = st.file_uploader("Ton GIF", type=["gif"], label_visibility="collapsed")
 
-col1, col2 = st.columns(2)
-with col1:
-    dx = st.slider("Décalage X", -150, 150, 0)
-with col2:
-    dy = st.slider("Décalage Y", -150, 150, 0)
+# Advanced options (cachées par défaut)
+if "show_advanced" not in st.session_state:
+    st.session_state.show_advanced = False
+
+if st.button("Advanced generation"):
+    st.session_state.show_advanced = not st.session_state.show_advanced
+
+if st.session_state.show_advanced:
+    col_a, col_b = st.columns(2)
+    with col_a:
+        dx = st.slider("Décalage X", -150, 150, 0)
+    with col_b:
+        dy = st.slider("Décalage Y", -150, 150, 0)
+else:
+    dx = 0
+    dy = 0
 
 if st.button("Ajouter la barbe", type="primary") and uploaded_file is not None:
     if not os.path.exists(BEARD_PATH):
-        st.error("Fichier beard.gif manquant")
+        st.error("Fichier beard.gif manquant sur le serveur")
     else:
-        beard = Image.open(BEARD_PATH)
-        target = Image.open(uploaded_file)
+        with st.spinner("Génération en cours..."):
+            beard = Image.open(BEARD_PATH)
+            target = Image.open(uploaded_file)
 
-        beard_frames = [np.array(f.convert("RGB")) for f in ImageSequence.Iterator(beard)]
-        target_frames = [np.array(f.convert("RGB")) for f in ImageSequence.Iterator(target)]
+            beard_frames = [np.array(f.convert("RGB")) for f in ImageSequence.Iterator(beard)]
+            target_frames = [np.array(f.convert("RGB")) for f in ImageSequence.Iterator(target)]
 
-        if len(beard_frames) != len(target_frames):
-            st.error(f"Le GIF doit avoir {len(beard_frames)} frames")
-        else:
-            result_frames = []
-            for b_arr, t_arr in zip(beard_frames, target_frames):
-                t_arr = t_arr.copy()
-                mask = ~np.all(b_arr == [255, 255, 255], axis=2)
-                ys, xs = np.where(mask)
+            if len(beard_frames) != len(target_frames):
+                st.error(f"Le GIF doit avoir {len(beard_frames)} frames")
+            else:
+                result_frames = []
+                for b_arr, t_arr in zip(beard_frames, target_frames):
+                    t_arr = t_arr.copy()
+                    mask = ~np.all(b_arr == [255, 255, 255], axis=2)
+                    ys, xs = np.where(mask)
 
-                for y, x in zip(ys, xs):
-                    ty = int(y + dy)
-                    tx = int(x + dx)
-                    if 0 <= ty < t_arr.shape[0] and 0 <= tx < t_arr.shape[1]:
-                        t_arr[ty, tx] = b_arr[y, x]
+                    for y, x in zip(ys, xs):
+                        ty = int(y + dy)
+                        tx = int(x + dx)
+                        if 0 <= ty < t_arr.shape[0] and 0 <= tx < t_arr.shape[1]:
+                            t_arr[ty, tx] = b_arr[y, x]
 
-                result_frames.append(Image.fromarray(t_arr))
+                    result_frames.append(Image.fromarray(t_arr))
 
-            out_path = tempfile.mktemp(suffix=".gif")
-            result_frames[0].save(
-                out_path,
-                save_all=True,
-                append_images=result_frames[1:],
-                duration=beard.info.get("duration", 100),
-                loop=0,
-                optimize=True
-            )
+                out_path = tempfile.mktemp(suffix=".gif")
+                result_frames[0].save(
+                    out_path,
+                    save_all=True,
+                    append_images=result_frames[1:],
+                    duration=beard.info.get("duration", 100),
+                    loop=0,
+                    optimize=True
+                )
 
-            st.image(out_path)
-            with open(out_path, "rb") as f:
-                st.download_button("Télécharger le GIF", f, file_name="bearded.gif")
+                st.image(out_path)
+                with open(out_path, "rb") as f:
+                    st.download_button(
+                        "Télécharger le GIF",
+                        f,
+                        file_name="chimp_barber.gif",
+                        mime="image/gif"
+                    )
+
+st.markdown("</div>", unsafe_allow_html=True)
