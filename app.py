@@ -124,37 +124,11 @@ if st.button("Add the beard", type="primary") and uploaded_file is not None:
 
                     result_frames.append(Image.fromarray(t_arr))
 
-                # === Static first frame (PNG / JPG) ===
+                # Prepare files
                 first_frame = result_frames[0]
                 png_path = tempfile.mktemp(suffix=".png")
-                jpg_path = tempfile.mktemp(suffix=".jpg")
                 first_frame.save(png_path, "PNG")
-                first_frame.convert("RGB").save(jpg_path, "JPEG", quality=95)
 
-                st.subheader("Static image (first frame)")
-                st.image(png_path)
-
-                col_png, col_jpg = st.columns(2)
-                with col_png:
-                    with open(png_path, "rb") as f:
-                        st.download_button(
-                            "Download PNG",
-                            f,
-                            file_name="chimpBarber.png",
-                            mime="image/png"
-                        )
-                with col_jpg:
-                    with open(jpg_path, "rb") as f:
-                        st.download_button(
-                            "Download JPG",
-                            f,
-                            file_name="chimpBarber.jpg",
-                            mime="image/jpeg"
-                        )
-
-                st.markdown("---")
-
-                # === Animated GIF ===
                 gif_path = tempfile.mktemp(suffix=".gif")
                 result_frames[0].save(
                     gif_path,
@@ -165,15 +139,30 @@ if st.button("Add the beard", type="primary") and uploaded_file is not None:
                     optimize=True
                 )
 
-                st.subheader("Animated GIF")
-                st.image(gif_path)
-                with open(gif_path, "rb") as f:
-                    st.download_button(
-                        "Download GIF",
-                        f,
-                        file_name="chimpBarber.gif",
-                        mime="image/gif"
-                    )
+                # Tabs (GIF is first = default)
+                tab_gif, tab_static = st.tabs(["GIF", "Static"])
+
+                with tab_gif:
+                    st.image(gif_path)
+                    with open(gif_path, "rb") as f:
+                        st.download_button(
+                            "Download",
+                            f,
+                            file_name="chimpBarber.gif",
+                            mime="image/gif",
+                            key="download_gif"
+                        )
+
+                with tab_static:
+                    st.image(png_path)
+                    with open(png_path, "rb") as f:
+                        st.download_button(
+                            "Download",
+                            f,
+                            file_name="chimpBarber.png",
+                            mime="image/png",
+                            key="download_png"
+                        )
 
                 # Message under the downloads
                 st.markdown("<p style='text-align: center; font-size: 1.1rem; margin-top: 1rem;'>Have a chimptastic day! 🐵</p>", unsafe_allow_html=True)
