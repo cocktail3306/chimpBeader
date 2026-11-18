@@ -146,13 +146,4 @@ if st.button("Add the beard", type="primary") and uploaded_file is not None:
                 # Message under the download button
                 st.markdown("<p style='text-align: center; font-size: 1.1rem; margin-top: 0.5rem;'>Have a chimptastic day! 🐵</p>", unsafe_allow_html=True)
 
-                # Share on X link
-                share_text = "Just gave my chimp a fresh beard with Chimp Barber! 🐒✨\n\n"
-                share_url = f"https://x.com/intent/tweet?text={quote(share_text)}"
-                st.markdown(
-                    f'<div style="text-align: center; margin-top: 0.5rem;"><a href="{share_url}" target="_blank" style="color:#1DA1F2; font-weight:bold; text-decoration:none;">Share on 𝕏</a></div>',
-                    unsafe_allow_html=True
-                )
-                st.caption("Download the GIF first, then attach it when the X composer opens.")
-
 st.markdown("</div>", unsafe_allow_html=True)
