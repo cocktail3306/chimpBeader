@@ -37,6 +37,20 @@ st.markdown("""
     .stButton>button:hover {
         background-color: #21867a;
     }
+    /* Style the advanced link button to look like a link */
+    div[data-testid="stButton"] button[kind="secondary"] {
+        background: none;
+        border: none;
+        color: #2a9d8f;
+        text-decoration: underline;
+        font-weight: normal;
+        padding: 0;
+        box-shadow: none;
+    }
+    div[data-testid="stButton"] button[kind="secondary"]:hover {
+        color: #21867a;
+        background: none;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -45,7 +59,6 @@ st.set_page_config(page_title="Chimp Barber", page_icon="🧔", layout="centered
 # === Header ===
 col1, col2 = st.columns([1, 2])
 with col1:
-    # Replace with the path to your header GIF if needed
     try:
         st.image("wbwPFP.gif", width=180)
     except:
@@ -70,7 +83,8 @@ uploaded_file = st.file_uploader("Your GIF", type=["gif"], label_visibility="col
 if "show_advanced" not in st.session_state:
     st.session_state.show_advanced = False
 
-if st.button("Advanced generation"):
+# Link-style button for Advanced generation
+if st.button("Advanced options", type="secondary"):
     st.session_state.show_advanced = not st.session_state.show_advanced
 
 if st.session_state.show_advanced:
